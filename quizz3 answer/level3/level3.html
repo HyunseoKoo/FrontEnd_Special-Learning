@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script defer type="module" src="./level3.js"></script>
+    <title>Document</title>
+    <style>
+      table {
+        border-collapse: collapse;
+        border: 1px solid #999;
+      }
+
+      table th,
+      td {
+        text-align: center;
+        border: 1px solid #999;
+      }
+
+      table .thead > th {
+        width: 150px;
+        padding: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <form id="ingredient-form">
+      <p>재료명: <input name="ingredient" /></p>
+      <p>용량: <input name="weight" /></p>
+      <button>추가</button>
+    </form>
+    <table>
+      <tr class="thead">
+        <th>재료</th>
+        <th>무게</th>
+        <th>관리</th>
+      </tr>
+    </table>
+    <button id="submit_button" type="button">제출</button>
+    <ul id="ingredient-list"></ul>
+  </body>
+
+  <script>
+    const $form = document.querySelector('#ingredient-form');
+    const $ingredient = document.querySelector("[name='ingredient']");
+    const $weight = document.querySelector("[name='weight']");
+    const $table = document.querySelector('table');
+    const $button = document.querySelector('#submit_button');
+    const $list = document.querySelector('#ingredient-list');
+    const INGREDIENT_LIST = new Map(); // Map 사용? 키를 활용하기 위함?
+
+    function deleteIngredient(e) {
+      if (!e.target.matches('button')) return; // 새로만든 tr에 버튼[삭제]가 없다면(false) 리턴
+      const $tr = e.target.closest('tr'); // tr에 가장 가까운 선택자
+      console.log('3', e.target);
+      console.log('2', $tr);
+      const ingredient = $tr.querySelector('td').textContent;
+      console.log('1', ingredient);
+      $tr.remove();
+      INGREDIENT_LIST.delete(ingredient);
+    }
+
+    $form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const ingredientValue = $ingredient.value;
+      const weightValue = $weight.value;
+      if (INGREDIENT_LIST.has(ingredientValue)) return alert('이미 존재하는 재료입니다');
+      if (!ingredientValue || !weightValue) return alert('입력해주세요');
+
+      const tr = document.createElement('tr');
+
+      tr.innerHTML = `
+  <td>${ingredientValue}</td>
+  <td>${weightValue}</td>
+  <td><button type="button">삭제</button></td>
+  `;
+
+      tr.addEventListener('click', deleteIngredient);
+
+      INGREDIENT_LIST.set(ingredientValue, weightValue);
+      $table.append(tr);
+      $ingredient.value = '';
+      $weight.value = '';
+    });
+    console.log('4', INGREDIENT_LIST); // map (테이블에 추가한 재료들의 컬렉션)
+
+    $button.addEventListener('click', () => {
+      if ($list.children.length > 0) $list.innerHTML = '';
+      INGREDIENT_LIST.forEach((weight, ingredient) => {
+        const li = document.createElement('li');
+        li.innerText = `${ingredient} : ${weight}`;
+        $list.append(li);
+      });
+    });
+  </script>
+</html>
